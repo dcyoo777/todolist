@@ -11,7 +11,8 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Swipeable from "react-native-gesture-handler/Swipeable";
 
-const TodoList = () => {
+
+const TodoListAsyncStorage = () => {
   const [text, onChangeText] = useState('');
   const [data, setData] = useState([]);
   const [showData, setShowData] = useState([]);
@@ -332,4 +333,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default TodoList;
+export default TodoListAsyncStorage;
