@@ -12,7 +12,6 @@ import Swipeable from "react-native-gesture-handler/Swipeable";
 import Realm from 'realm';
 
 import NavBar from "./NavBar";
-import { renderAndEnforceStrictMode } from "react-native/Libraries/Utilities/ReactNativeTestTools";
 
 const TaskSchema = {
   name: "Task",
@@ -74,7 +73,6 @@ const TodoListRealm = () => {
       }
 
       realm.write(async() => {
-        console.log(81)
         await realm.create("Task", {
           id: nextId,
           task: text,

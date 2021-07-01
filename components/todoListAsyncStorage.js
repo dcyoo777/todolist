@@ -10,6 +10,7 @@ import {
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Swipeable from "react-native-gesture-handler/Swipeable";
+import NavBar from "./NavBar";
 
 
 const TodoListAsyncStorage = () => {
@@ -164,47 +165,7 @@ const TodoListAsyncStorage = () => {
   return (
     <View style={{flex: 11}}>
 
-      <View style={{flexDirection: 'row', height: 40, borderBottomWidth: 1, borderBottomColor: "#aaaaaa"}}>
-
-        <TouchableOpacity
-          style={{flex: 1, backgroundColor: nav==='all'?'#C6C6DA':'#E6E6FA', justifyContent: "center"}}
-          onPress={()=>{
-            setNav('all');
-            setUpdate(true);
-          }}
-        >
-          <Text style={{textAlign: "center", alignItems: "center"}}>
-            ALL
-          </Text>
-        </TouchableOpacity>
-
-
-        <TouchableOpacity
-          style={{flex: 1, backgroundColor: nav==='todo'?'#C6C6DA':'#E6E6FA', justifyContent: "center"}}
-          onPress={()=>{
-            setNav('todo');
-            setUpdate(true);
-          }}
-        >
-          <Text style={{textAlign: "center", alignItems: "center"}}>
-            TODO
-          </Text>
-        </TouchableOpacity>
-
-
-        <TouchableOpacity
-          style={{flex: 1, backgroundColor: nav==='done'?'#C6C6DA':'#E6E6FA', justifyContent: "center"}}
-          onPress={()=>{
-            setNav('done');
-            setUpdate(true);
-          }}
-        >
-          <Text style={{textAlign: "center", alignItems: "center"}}>
-            DONE
-          </Text>
-        </TouchableOpacity>
-
-      </View>
+      <NavBar nav={nav} setNav={setNav} setUpdate={setUpdate}/>
 
       <FlatList
         ref={flatListRef}
@@ -227,18 +188,12 @@ const TodoListAsyncStorage = () => {
           onChangeText={onChangeText}
           onFocus={()=>{
             {
-              data.length===0 ?
-                console.log("")
-                :
-                flatListRef.current.scrollToEnd();
+              data.length===0 && flatListRef.current.scrollToEnd();
             }
           }}
           onPressIn={()=>{
             {
-              data.length===0 ?
-                console.log("")
-                :
-                flatListRef.current.scrollToEnd();
+              data.length===0 && flatListRef.current.scrollToEnd();
             }
           }}
           value={text}
@@ -256,7 +211,6 @@ const TodoListAsyncStorage = () => {
                   :
                   _insertData({id: data.length, text: text, selected: false})
               }
-
             }
             onChangeText('');
           }}>
