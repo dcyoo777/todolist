@@ -36,6 +36,7 @@ const App = () => {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{flex:12, height: "94%", backgroundColor: "#efefef"}}
       >
+
         <TopBar/>
 
         <View style={{flexDirection: 'row', height: 40, borderBottomWidth: 1, borderBottomColor: "#aaaaaa"}}>
@@ -84,11 +85,5 @@ const App = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  wholeBody: {
-    flex: 1,
-    flexDirection: "column",
-  }
-});
 
 export default App;
