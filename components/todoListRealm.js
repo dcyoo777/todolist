@@ -9,6 +9,7 @@ import NavBar from "./NavBar";
 import ListViewForTodolist from "./ListViewForTodolist";
 import InputComponent from "./InputComponent";
 
+// Task 스키마 정의
 const TaskSchema = {
   name: "Task",
   properties: {
@@ -19,13 +20,18 @@ const TaskSchema = {
   primaryKey: "id",
 };
 
+// DB의 path 정의
 const DB_PATH = "Test3";
 
+const realm = new Realm({
+  path: DB_PATH, // Realm 파일의 이름
+  schema: [TaskSchema], // 사용할 Object Model
+});
 
 const TodoListRealm = () => {
 
   /*
-  SQLite 를 사용한 TODO LIST
+  Realm을 사용한 TODO LIST
    */
 
   const [text, onChangeText] = useState('');            // 입력 창의 text
@@ -36,12 +42,15 @@ const TodoListRealm = () => {
   const [revise, setRevise] = useState(false);          // 수정 상태인지 여부
   const [revisedIndex, setRevisedIndex] = useState(0);  // 수정 중인 데이터의 id
 
-  const flatListRef = useRef();
+
+  const flatListRef = useRef();                                   // flatlist의 Ref, 스크롤 하단으로 이동하는 메소드 사용을 위해 정의
+
 
   useEffect(() => {
     /*
     update 값이 바뀌면 데이터 업데이트 시도
      */
+
     _retrieveData();
 
   }, [update])
@@ -49,121 +58,143 @@ const TodoListRealm = () => {
 
   const _insertData = () => {
     /*
-    DB에 새로운 데이터 추가
+    DB에 새로운 Task 추가
      */
-    Realm.open({
-      path: DB_PATH,
-      schema: [TaskSchema],
-    }).then(realm => {
+    // Realm.open({
+    //   path: DB_PATH,
+    //   schema: [TaskSchema],
+    // }).then(realm => {
+    //
 
       const res = realm.objects("Task");
 
       let nextId = 0;
-      if (res.length > 0){
+      if (res.length > 0){  // 마지막으로 저장된 Task의 id에 1을 더한 값을 새로운 Task의 id로 정함
         nextId = res[res.length - 1].id + 1;
       }
 
-      realm.write(async() => {
-        await realm.create("Task", {
+      realm.write(() => {
+        realm.create("Task", {
           id: nextId,
           task: text,
           done: false,
         });
-
       });
 
-      setUpdate(true);
-      onChangeText('');
+      setUpdate(true);    // 데이터 업데이트
+      onChangeText('');   // 텍스트 입력 초기화
 
-    }).catch(e => console.log(e));
+    // }).catch(e => console.log(e));
 
   }
 
 
-  const _reviseData = () => {
+  const _updateData = () => {
     /*
     수정중인 데이터를 DB에 업데이트
      */
-    Realm.open({
-      path: DB_PATH,
-      schema: [TaskSchema],
-    }).then(realm => {
+    // Realm.open({
+    //   path: DB_PATH,
+    //   schema: [TaskSchema],
+    // }).then(realm => {
 
       const res = realm.objects("Task");
 
+      // 전체 Task object array(res)에서 id가 revisedIndex인 object를 찾아 저장
       const reviseData = res.find(data => data.id === revisedIndex)
 
       realm.write(() => {
         reviseData.task = text;
       });
 
-      setUpdate(true);
-      onChangeText('');
-      setRevise(false);
+      setUpdate(true);    // 데이터 업데이트
+      onChangeText('');   // 텍스트 입력 초기화
+      setRevise(false);   // 수정 모드 해제
 
-    }).catch(e => console.log(e));
+    // }).catch(e => console.log(e));
 
   }
 
 
-  const _deleteData = async (id)=> {
+  const _deleteData = (id)=> {
     /*
-    입력받은 id의 행을 DB에서 제거
+    입력받은 id의 데이터를 삭제
      */
-    Realm.open({
-      path: DB_PATH,
-      schema: [TaskSchema],
-    }).then(realm => {
+    // Realm.open({
+    //   path: DB_PATH,
+    //   schema: [TaskSchema],
+    // }).then(realm => {
 
       const res = realm.objects("Task");
 
+      // 전체 Task object array(res)에서 id가 parameter id와 같은 object를 찾아 저장
       const deleteData = res.find(data => data.id === id)
 
       realm.write(() => {
         realm.delete(deleteData);
       });
 
-      setUpdate(true);
-      onChangeText('');
-      setRevise(false);
-    }).catch(e => console.log(e));
+      setUpdate(true);    // 데이터 업데이트
+      onChangeText('');   // 텍스트 입력 초기화
+      setRevise(false);   // 수정 모드 해제
+
+    // }).catch(e => console.log(e));
+
   }
 
 
-  const _changeDone = async (id) => {
-    Realm.open({
-      path: DB_PATH,
-      schema: [TaskSchema],
-    }).then(realm => {
+  const _changeDone = (id) => {
+    /*
+    입력받은 id의 데이터의 done을 변경
+     */
+    // Realm.open({
+    //   path: DB_PATH,
+    //   schema: [TaskSchema],
+    // }).then(realm => {
+
       const res = realm.objects("Task");
 
+      // 전체 Task object array(res)에서 id가 parameter id와 같은 object를 찾아 저장
       const reviseData = res.find(data => data.id === id)
 
       realm.write(() => {
         reviseData.done = !reviseData.done;
       });
 
-      setUpdate(true);
-    }).catch(e => console.log(e));
+      setUpdate(true);    // 데이터 업데이트
+
+    // }).catch(e => console.log(e));
+
   }
 
-  const _retrieveData = async () => {
+
+  const _retrieveData = () => {
     /*
     update가 true인 경우 DB에서 정보를 업데이트
      */
 
-    if(update){
-      Realm.open({
-        path: DB_PATH,
-        schema: [TaskSchema],
-      }).then(realm => {
+    if(update){ // update가 true인 경우에만 화면 구성에 필요한 데이터를 다시 읽어옴
+
+      // Realm.open({
+      //   path: DB_PATH,
+      //   schema: [TaskSchema],
+      // }).then(realm => {
+
         const allData = realm.objects("Task");
+
+        // 화면에 보여주는 done의 값에 따라 데이터를 필터링하여 저장
         let show = allData;
         if (nav === 'todo') {
           show = allData.filtered("done=false");
         } else if (nav === 'done') {
           show = allData.filtered("done=true");
         }
+
+        /*
+        * 하단에서 읽어온 데이터의 값을 복사하여 새로운 object에 저장한다.
+        * 아래와 같은 과정을 거치지 않고 읽어온 object를 그대로 화면 구성을 위한 데이터로 사용하면
+        * DB에서 Task가 삭제되는 경우, 화면을 구성하는 컴포넌트가 데이터를 잃어 오류를 일으킨다.
+        * */
 
         const a = allData.map((data) => {
           return {
@@ -181,16 +212,19 @@ const TodoListRealm = () => {
           }
         })
 
-        setData(a);
-        setShowData(b);
-        setUpdate(false);
-      }).catch(e => console.log(e));
+        setData(a);               // 모든 데이터 저장
+        setShowData(b);           // 화면에 보이는 데이터 저장
+        setUpdate(false);   // 데이터 업데이트 완료
+
+      // }).catch(e => console.log(e));
 
     }
+
   }
 
+
   return (
-    <View style={{flex: 11}}>
+    <View style={{flex: 1}}>
 
       <NavBar nav={nav} setNav={setNav} setUpdate={setUpdate}/>
 
@@ -211,10 +245,9 @@ const TodoListRealm = () => {
         data={data}
         text={text}
         revise={revise}
-        _reviseData={_reviseData}
+        _updateData={_updateData}
         _insertData={_insertData}
       />
-
 
     </View>
   )

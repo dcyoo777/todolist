@@ -30,7 +30,7 @@ const InputComponent = (props) => {
           if (props.text.length>0){
             {
               props.revise?
-                props._reviseData()
+                props._updateData()
                 :
                 props._insertData()
             }

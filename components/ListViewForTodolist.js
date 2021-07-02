@@ -21,16 +21,16 @@ const ListViewForTodolist = (props) => {
           <Text style={{alignItems: "center", textAlign: "center"}}>수정</Text>
         </View>
       )}
-      onSwipeableOpen={()=>{
+      onSwipeableOpen={()=>{  // swip이 발생하면 해당 Swipeable을 바로 닫음
         row[item.id].close();
       }}
-      onSwipeableRightOpen={()=>{
-        props._deleteData(item.id)
+      onSwipeableRightOpen={()=>{   // 오른쪽으로 swip하는 경우 해당 데이터 삭제
+        props._deleteData(item.id);
       }}
-      onSwipeableLeftOpen={()=>{
-        props.setRevisedIndex(item.id)
-        props.setText(item.task)
-        props.setRevise(true)
+      onSwipeableLeftOpen={()=>{    // 왼쪽으로 swip하는 경우 해당 데이터 수정 모드 진입 및 해당 task를 텍스트 입력 창으로 가져옴
+        props.setRevisedIndex(item.id);
+        props.setText(item.task);
+        props.setRevise(true);
       }}
     >
 

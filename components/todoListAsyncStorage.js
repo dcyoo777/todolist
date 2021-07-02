@@ -43,7 +43,7 @@ const TodoListAsyncStorage = () => {
     }
   }
 
-  const _reviseData = async () => {
+  const _updateData = async () => {
 
     const revisedData = {
       id: revisedIndex,
@@ -123,7 +123,7 @@ const TodoListAsyncStorage = () => {
   }
 
   return (
-    <View style={{flex: 11}}>
+    <View style={{flex: 1}}>
 
       <NavBar nav={nav} setNav={setNav} setUpdate={setUpdate}/>
 
@@ -144,7 +144,7 @@ const TodoListAsyncStorage = () => {
         data={data}
         text={text}
         revise={revise}
-        _reviseData={_reviseData}
+        _updateData={_updateData}
         _insertData={_insertData}
       />
 
