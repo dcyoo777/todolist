@@ -9,6 +9,10 @@ import NavBar from "./NavBar";
 import ListViewForTodolist from "./ListViewForTodolist";
 import InputComponent from "./InputComponent";
 
+// DB의 path 정의
+const DB_PATH = "Test3.realm";
+let TaskSchemaVersion = 1;
+
 // Task 스키마 정의
 const TaskSchema = {
   name: "Task",
@@ -20,14 +24,12 @@ const TaskSchema = {
   primaryKey: "id",
 };
 
-// DB의 path 정의
-const DB_PATH = "Test3";
-
-// DB open
 const realm = new Realm({
   path: DB_PATH, // Realm 파일의 이름
   schema: [TaskSchema], // 사용할 Object Model
+  schemaVersion: TaskSchemaVersion,
 });
+
 
 const TodoListRealm = () => {
 
@@ -38,7 +40,7 @@ const TodoListRealm = () => {
   const [text, onChangeText] = useState('');            // 입력 창의 text
   const [data, setData] = useState([]);                 // 읽어온 모든 데이터를 저장
   const [showData, setShowData] = useState([]);         // 현재 네비게이션에서 보여주는 데이터를 저장
-  const [update, setUpdate] = useState(true);           // DB에 변화가 있어 데이터를 다시 읽어오도록 하는 변수, true 일 경우 다시 읽어옴
+  const [update, setUpdate] = useState(true);           // 데이터베이스 업데이트 여부
   const [nav, setNav] = useState('all');                // 현재 네비게이션 정보
   const [revise, setRevise] = useState(false);          // 수정 상태인지 여부
   const [revisedIndex, setRevisedIndex] = useState(0);  // 수정 중인 데이터의 id
@@ -47,13 +49,18 @@ const TodoListRealm = () => {
   const flatListRef = useRef();                                   // flatlist의 Ref, 스크롤 하단으로 이동하는 메소드 사용을 위해 정의
 
 
+  const onChangeData = () => {
+    setUpdate(true)
+  }
+
+
   useEffect(() => {
-    /*
-    update 값이 바뀌면 데이터 업데이트 시도
-     */
+    realm.addListener("change", onChangeData);
+  }, [])
 
-    _retrieveData();
 
+  useEffect(() => {
+    _retrieveData()
   }, [update])
 
 
@@ -77,10 +84,10 @@ const TodoListRealm = () => {
       });
     });
 
-    setUpdate(true);    // 데이터 업데이트
     onChangeText('');   // 텍스트 입력 초기화
 
   }
+
 
 
   const _updateData = () => {
@@ -97,9 +104,9 @@ const TodoListRealm = () => {
       reviseData.task = text;
     });
 
-    setUpdate(true);    // 데이터 업데이트
     onChangeText('');   // 텍스트 입력 초기화
     setRevise(false);   // 수정 모드 해제
+
 
   }
 
@@ -118,9 +125,9 @@ const TodoListRealm = () => {
       realm.delete(deleteData);
     });
 
-    setUpdate(true);    // 데이터 업데이트
     onChangeText('');   // 텍스트 입력 초기화
     setRevise(false);   // 수정 모드 해제
+
 
   }
 
@@ -139,26 +146,29 @@ const TodoListRealm = () => {
       reviseData.done = !reviseData.done;
     });
 
-    setUpdate(true);    // 데이터 업데이트
 
   }
 
 
   const _retrieveData = () => {
     /*
-    update가 true인 경우 DB에서 정보를 업데이트
+    DB에서 정보를 업데이트
      */
 
-    if(update){ // update가 true인 경우에만 화면 구성에 필요한 데이터를 다시 읽어옴
-
+    if(update){
       const allData = realm.objects("Task");
 
       // 화면에 보여주는 done의 값에 따라 데이터를 필터링하여 저장
-      let show = allData;
-      if (nav === 'todo') {
-        show = allData.filtered("done=false");
+      let show;
+
+      console.log(nav)
+
+      if (nav === 'all') {
+        show = allData;
+      } else if (nav === 'todo') {
+        show = allData.filtered("done==false");
       } else if (nav === 'done') {
-        show = allData.filtered("done=true");
+        show = allData.filtered("done==true");
       }
 
       /*
@@ -185,8 +195,9 @@ const TodoListRealm = () => {
 
       setData(a);               // 모든 데이터 저장
       setShowData(b);           // 화면에 보이는 데이터 저장
-      setUpdate(false);   // 데이터 업데이트 완료
+      setUpdate(false);
 
+      console.log(showData);
     }
 
   }
@@ -195,7 +206,7 @@ const TodoListRealm = () => {
   return (
     <View style={{flex: 1}}>
 
-      <NavBar nav={nav} setNav={setNav} setUpdate={setUpdate}/>
+      <NavBar setUpdate={setUpdate} nav={nav} setNav={setNav} />
 
       <ListViewForTodolist
         db={"Realm"}
@@ -203,7 +214,6 @@ const TodoListRealm = () => {
         setRevisedIndex={setRevisedIndex}
         setText={onChangeText}
         setRevise={setRevise}
-        setUpdate={setUpdate}
         flatListRef={flatListRef}
         _deleteData={_deleteData}
         _changeDone={_changeDone}

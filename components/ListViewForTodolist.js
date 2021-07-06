@@ -22,9 +22,7 @@ const ListViewForTodolist = (props) => {
         </View>
       )}
       onSwipeableOpen={()=>{  // swip이 발생하면 해당 Swipeable을 바로 닫음
-        if(props.db !== "Realm"){
-          row[item.id].close();
-        }
+        row[item.id].close();
       }}
       onSwipeableRightOpen={()=>{   // 오른쪽으로 swip하는 경우 해당 데이터 삭제
         props._deleteData(item.id);
