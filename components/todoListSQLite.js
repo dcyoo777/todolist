@@ -46,11 +46,10 @@ const TodoListSQLite = () => {
         "SELECT name FROM sqlite_master WHERE type='table' AND name='todolist'",
         [],
         function (tx, res) {
-
           if (res.rows.length == 0) {
             tx.executeSql("DROP TABLE IF EXISTS todolist", []);
             tx.executeSql(
-              "CREATE TABLE IF NOT EXISTS todolist(id INTEGER PRIMARY KEY AUTOINCREMENT, task VARCHAR(100), done INTEGER DEFAULT 0);",
+              "CREATE TABLE IF NOT EXISTS temp(id INTEGER PRIMARY KEY AUTOINCREMENT, task VARCHAR(100), done INTEGER DEFAULT 0, );",
               []
             );
           }
@@ -62,28 +61,30 @@ const TodoListSQLite = () => {
   }, [])
 
 
+
   useEffect(() => {
     /*
     update 값이 바뀌면 데이터 업데이트 시도
      */
-
     _retrieveData();
 
   }, [update])
 
 
-  const _insertData = async () => {
+  const _insertData = () => {
     /*
     DB에 새로운 데이터 추가
      */
 
-    db.transaction(function (tx) {
+    console.log("insert")
 
+    db.transaction(function (tx) {
+      console.log("insert2")
       tx.executeSql(
-        "INSERT INTO " + DB_NAME + " (task) VALUES (?)",
+        "INSERT INTO todolist (task) VALUES (?)",
         [text],
         (tx, results) => {
-
+          console.log("insert3")
           if (results.rowsAffected > 0) {   // DB 저장 성공 시
             setUpdate(true);     // 데이터 업데이트
             onChangeText('');    // 텍스트 입력 초기화
@@ -95,7 +96,7 @@ const TodoListSQLite = () => {
   }
 
 
-  const _updateData = async () => {
+  const _updateData = () => {
     /*
     수정중인 데이터를 DB에 업데이트
      */
@@ -119,7 +120,7 @@ const TodoListSQLite = () => {
   }
 
 
-  const _deleteData = async(id)=> {
+  const _deleteData = (id)=> {
     /*
     입력받은 id의 행을 DB에서 제거
      */
@@ -143,7 +144,7 @@ const TodoListSQLite = () => {
   }
 
 
-  const _changeDone = async (id, done) => {
+  const _changeDone = (id, done) => {
     /*
     수정중인 데이터를 DB에 업데이트
      */
@@ -165,7 +166,7 @@ const TodoListSQLite = () => {
   }
 
 
-  const _retrieveData = async () => {
+  const _retrieveData = () => {
     /*
     update가 true인 경우 DB에서 정보를 업데이트
      */
